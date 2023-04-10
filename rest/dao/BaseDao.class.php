@@ -1,22 +1,25 @@
 <?php
+require_once __DIR__."/../Config.class.php";
+
     class BaseDao{
         private $conn;
-        private $host = 'localhost';
-        private $database = 'lab4_db';
-        private $username = 'root';
-        private $password = 'root';
-
         private $table_name;
 
         public function __construct($table_name){
-            try {
-                $this->table_name = $table_name;
-                $this->conn = new PDO("mysql:host=$this->host;dbname=$this->database", $this->username, $this->password);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch(PDOException $e) {
-                echo "Error: " . $e->getMessage();
-            }
+        try {
+          $this->table_name = $table_name;
+          $servername = Config::DB_HOST();
+          $username = Config::DB_USERNAME();
+          $password = Config::DB_PASSWORD();
+          $schema = Config::DB_SCHEMA();;
+          $this->conn = new PDO("mysql:host=$servername;dbname=$schema", $username, $password);
+          // set the PDO error mode to exception
+          $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+          //echo "Connected successfully";
+        } catch(PDOException $e) {
+          echo "Connection failed: " . $e->getMessage();
         }
+    }
         
         
         function get_all() {
@@ -58,7 +61,7 @@
         } 
 
         function update($id, $entity, $id_column = "id") {
-            $query = "UPDATE " . $this->table_name . "SET ";
+            $query = "UPDATE " . $this->table_name . " SET ";
             foreach($entity as $column => $value){
                  $query.= $column . "=:" . $column . ", ";
             }
